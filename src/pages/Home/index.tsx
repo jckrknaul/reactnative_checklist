@@ -1,8 +1,47 @@
-import React from 'react';
+import React, {useEffect, useState, useMemo} from 'react';
 import { View, Text, ImageBackground , StyleSheet, TouchableOpacity} from 'react-native';
-import { RectButton } from 'react-native-gesture-handler';
+import { RectButton, ScrollView } from 'react-native-gesture-handler';
+import { useNavigation } from '@react-navigation/native';
+import { format } from 'date-fns';
+
+import ListNotes from '../ListNotes';
+import api from '../../services/api';
+
+interface Notes {
+  id: string;
+  description: string;
+  dateAt: Date;
+}
 
 const Home = () => {
+  const navigation = useNavigation();
+  const [notes, setNotes] = useState<Notes[]>([]);
+
+  useEffect(() => {
+    async function loadNotes() {
+        const response = await api.get('/lists');
+
+        setNotes(response.data);
+    }
+    loadNotes();
+  }, []);
+
+  const notesFormatted = useMemo(() => {
+    return notes
+      .map(({ description, dateAt }) => {
+        return {
+          description,
+          dateFomatted: dateAt//format(dateAt, 'dd/MM/yyyy HH:mm:ss'),
+        };
+      });
+  }, [notes]);
+
+
+
+  function handleNavigateList(){
+    navigation.navigate('Note');
+  }
+
   return (
     <ImageBackground 
       source={require('../../assets/home-background.png')} 
@@ -10,18 +49,31 @@ const Home = () => {
       resizeMode="contain"
     >
       <View>
-        <Text style={styles.header}>NOTAS</Text>
+        <Text style={styles.header}>Check List</Text>
       </View>
       
-      <View style={styles.main}>
-      </View>
+      <ScrollView>
+
+        {notesFormatted.map(({description, dateFomatted}) => (
+          <View style={styles.itemsContainer}>
+            <TouchableOpacity style={styles.item} onPress={() => {}}>
+              <ImageBackground
+                source={require('../../assets/notes.png')}
+                style={styles.imgNotes}
+              >
+              </ImageBackground>
+              <Text style={styles.itemTitle}>{description}</Text>
+              <Text style={styles.itemTitle}>{dateFomatted}</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
+      </ScrollView>
         
       <View style={styles.footer}>
-        <RectButton style={styles.button} onPress={() => {}}>
+        <RectButton style={styles.button} onPress={handleNavigateList}>
           <Text style={styles.buttonMais}>+</Text>
         </RectButton>
       </View>
-        
       
     </ImageBackground>
   );
@@ -31,15 +83,14 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 32,
-    backgroundColor: '#f0f0d9',    
+    backgroundColor: '#D5E4EC',    
   },
 
   header: {
     marginTop: 16,
     fontFamily: 'Roboto_400Regular',
     fontSize: 36,
-    justifyContent: 'center',
-    alignItems: 'center'
+    textAlign: 'center'
   },
 
   button: {
@@ -69,6 +120,44 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'flex-end',
     alignItems: 'flex-end'
+  },
+
+  itemsContainer: {
+    flex: 1,
+    flexDirection: 'row',
+    marginTop: 8,
+    marginBottom: 2,
+    justifyContent: 'space-around',
+    alignItems: 'stretch'
+  },
+
+  item: {
+    flex: 1,
+    backgroundColor: '#fff',
+    borderWidth: 1,
+    borderColor: '#000',
+    //height: 100,
+    //width: 320,
+    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingTop: 20,
+    paddingBottom: 16,
+    marginRight: 0,
+    alignItems: 'center',
+    //justifyContent: 'space-evenly',
+
+    textAlign: 'center',
+  },
+
+  itemTitle: {
+    fontFamily: 'Roboto_400Regular',
+    textAlign: 'center',
+    fontSize: 16,
+  },
+
+  imgNotes: {
+    height: 28,
+    width: 28,
   },
 
 });
