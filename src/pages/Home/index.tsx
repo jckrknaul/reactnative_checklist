@@ -4,7 +4,7 @@ import { RectButton, ScrollView } from 'react-native-gesture-handler';
 import { useNavigation } from '@react-navigation/native';
 import { format } from 'date-fns';
 
-import ListNotes from '../ListNotes';
+//import ListNotes from '../ListNotes';
 import api from '../../services/api';
 
 interface Notes {
