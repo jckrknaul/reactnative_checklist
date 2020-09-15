@@ -28,17 +28,20 @@ const Home = () => {
 
   const notesFormatted = useMemo(() => {
     return notes
-      .map(({ description, dateAt }) => {
+      .map(({ id, description, dateAt }) => {
         return {
+          id,
           description,
           dateFomatted: dateAt//format(dateAt, 'dd/MM/yyyy HH:mm:ss'),
         };
       });
   }, [notes]);
 
+  function handleNavigateList(id: string){
+    navigation.navigate('Note', {itemID: id});
+  }
 
-
-  function handleNavigateList(){
+  function handleNavigateAddList(){
     navigation.navigate('Note');
   }
 
@@ -54,9 +57,9 @@ const Home = () => {
       
       <ScrollView>
 
-        {notesFormatted.map(({description, dateFomatted}) => (
-          <View style={styles.itemsContainer}>
-            <TouchableOpacity style={styles.item} onPress={() => {}}>
+        {notesFormatted.map(({id, description, dateFomatted}) => (
+          <View key={id} style={styles.itemsContainer}>
+            <TouchableOpacity style={styles.item} onPress={() => handleNavigateList(id)}>
               <ImageBackground
                 source={require('../../assets/notes.png')}
                 style={styles.imgNotes}
@@ -70,7 +73,7 @@ const Home = () => {
       </ScrollView>
         
       <View style={styles.footer}>
-        <RectButton style={styles.button} onPress={handleNavigateList}>
+        <RectButton style={styles.button} onPress={handleNavigateAddList}>
           <Text style={styles.buttonMais}>+</Text>
         </RectButton>
       </View>

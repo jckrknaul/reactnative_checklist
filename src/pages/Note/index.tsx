@@ -1,21 +1,54 @@
-import React from 'react';
-import { View, StyleSheet, TouchableOpacity, TextInput, Text } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, StyleSheet, TouchableOpacity, TextInput, Text, Alert } from 'react-native';
 import Constants from 'expo-constants';
 import { Feather as Icon } from '@expo/vector-icons';
-import { useNavigation } from '@react-navigation/native'
+import { useNavigation, useRoute } from '@react-navigation/native'
 import { CheckBox } from 'react-native-elements';
 
 import Check from '../Check';
+import api from '../../services/api';
+
+interface Items {
+  list: {
+      id: number,
+      description: string,
+      dateAt: string,
+  },
+  items: {
+      id: number,
+      description: string,
+      done: boolean,
+  }[],  
+}
+
+interface Params {
+  itemID: number;
+}
 
 const Note = () => {
   const navigation = useNavigation();
+  const route = useRoute();
+  const routeParams = route.params as Params;
+
+  const [items, setItems] = useState<Items>({} as Items);
+
+  useEffect(() => {
+    api.get(`lists/${routeParams.itemID}`).then(response => {
+      console.log('RESPOSTA: ', response.data);
+      setItems(response.data);
+    })  
+  },[]);
 
   function handleNavigateBack() {
     navigation.goBack();
   }
 
-  function handleNavigateConfirm() {
+  async function handleNavigateConfirm() {
     //navigation.goBack();
+
+    Alert.alert('Feito');
+    
+    
   }
 
   return (
@@ -35,11 +68,17 @@ const Note = () => {
       </View>
 
       <View style={styles.body}>
-        <Check title="Ovos"></Check>
+        {/* <Check title="Ovos"></Check>
         <Check title="Leite"></Check>
         <Check title="Farinha"></Check>
         <Check title="Amaciante"></Check>
-        <Check title="Pão de leite"></Check>
+        <Check title="Pão de leite"></Check> */}
+
+        {items.items && items.items.map(item => (
+          <Check key={item.id} title={item.description}></Check>
+        ))} 
+
+
       </View>
       
     </View>
